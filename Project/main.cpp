@@ -73,29 +73,27 @@ void mainMenu()
 void staffLogin(){
     char data_id[4][20] = {"2540119280", "2501983982", "123456789", "1234567890"};
     char id[20];
-    bool isValid = false;
-    int idx = 0;
-    int i = 0;
+    bool is_valid = false;
     printf("Enter ID :");
     scanf("%s", id);
     
-    for(i = 0; i < 4; i++)
+    for(int i = 0; i < 4; i++)
     {
-        if(strcmp(id, data_id[idx]) == 0)
+        if(strcmp(id, data_id[i]) == 0)
         {
-            isValid = true;
+            is_valid = true;
             break;
         }
     }
 
-    if(isValid == true)
+    if(is_valid == true)
     {
-        printf("Welcome %s", data_id[i]);
+        printf("Welcome %s\n", id);
         staffMenu();
     }
     else
     {
-        printf("Invalid ID");
+        printf("Invalid ID\n");
         mainMenu();
     }
 }
@@ -168,6 +166,11 @@ void displayItems()
     }
 
     fclose(items_file);
+
+	fflush(stdin);
+    puts("Click enter to go back to menu!");
+    getchar();
+    ownerMenu();
 }
 
 void addItem()
@@ -177,7 +180,7 @@ void addItem()
 	items item;
 	
     // get item information from user
-	getchar();
+	fflush(stdin);
 	printf("Enter item name : ");
 	scanf("%[^\n]", item.name);
     sentenceCase(item.name);
@@ -194,6 +197,11 @@ void addItem()
 	printItem(item);
 	
 	fclose(items_file);
+
+	fflush(stdin);
+    puts("Click enter to go back to menu!");
+    getchar();
+    ownerMenu();
 }
 
 // prints an item's properties
