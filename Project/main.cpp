@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 // item struct
 struct items
@@ -23,6 +24,9 @@ void ownerMenu();
 void displayItems();
 void addItem();
 void printItem(items item); // print an item's properties
+
+// utility
+void sentenceCase(char s[]);
 
 int main(){
     mainMenu();
@@ -176,6 +180,7 @@ void addItem()
 	getchar();
 	printf("Enter item name : ");
 	scanf("%[^\n]", item.name);
+    sentenceCase(item.name);
 	printf("Enter item price : Rp ");
 	scanf("%d", &item.price);
 	printf("Enter item stock amount : ");
@@ -191,9 +196,18 @@ void addItem()
 	fclose(items_file);
 }
 
+// prints an item's properties
 void printItem(items item)
 {
     printf("Name  : %s\n", item.name);
     printf("Price : Rp %d\n", item.price);
     printf("Stock : %d\n\n", item.stock);
+}
+
+// capitalize a string using sentence case. ex : "Like this string"
+void sentenceCase(char s[]){
+    s[0] = toupper(s[0]);
+    for(int i = 1; s[i] != '\0'; i++){
+        s[i] = tolower(s[i]);
+    }
 }
