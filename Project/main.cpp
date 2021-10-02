@@ -24,12 +24,19 @@ void ownerMenu();
 // functions for items
 void displayItems();
 void addItem();
-void printItem(items item); // print an item's properties
-void inputItem(items item); // get an item's properties from user
+void printItem(items *item); // print an item's properties
+void inputItem(items *item); // get an item's properties from user
 void deleteItem();
+void sortItems();
+void copyItem(items *destination, items *source);
+void writeItemsToDatabase(items *source, int number_of_items);
 
 // utility
 void sentenceCase(char s[]);
+void mergeSort(items *item, int l, int r);
+
+// etc
+void merge(items *item, int l, int r, int m);
 
 int main(){
     mainMenu();
@@ -40,7 +47,7 @@ int main(){
 void mainMenu()
 {
     int choice = -1;
-    system("clear");
+    system("cls");
     puts("Welcome to The Fisherman Market App!");
     puts("What Can We Do To Help You?");
     puts("1. Staff");
@@ -57,19 +64,19 @@ void mainMenu()
     
     switch(choice)
     {
-        case 1 :
+        case 1:
         staffLogin();
         break;
 
-        case 2 :
+        case 2:
         customerMenu();
         break;
 
-        case 3 :
+        case 3:
         ownerMenu();
         break;
 
-        case 4 :
+        case 4:
         puts("Thanks For Using The Program!\n");
         break;
     }
@@ -77,8 +84,8 @@ void mainMenu()
 
 // staff login screen
 void staffLogin(){
-    system("clear");
-    char data_id[4][20] = {"2540119280", "2501983982", "123456789", "1234567890"};
+    system("cls");
+    char data_id[4][20] = {"2540119280", "2501983982", "123456789", "25"};
     char id[20];
     bool is_valid = false;
     printf("Enter ID :");
@@ -111,22 +118,22 @@ void staffLogin(){
 // display staff menu
 void staffMenu()
 {
-    system("clear");
+    system("cls");
     puts("UNDER CONSTRUCTION");
 } 
 
 // display customer menu
 void customerMenu()
 {
-    system("clear");
+    system("cls");
     puts("UNDER CONSTRUCTION");
 }
 
 // display owner menu
 void ownerMenu()
 {
-    system("clear");
-    int choice;
+    system("cls");
+    int choice = -1;
     puts("Welcome Owner!");
     puts("What do you want to do, Boss?");
     puts("1. Display items");
@@ -140,29 +147,33 @@ void ownerMenu()
         scanf("%d", &choice);
     }while(!(1 <= choice && choice <= 4));
     
+    printf("%d", choice);
+    
     switch(choice)
     {
-        case 1 :
+        case 1:
         displayItems();
         break;
 
-        case 2 :
+        case 2:
         addItem();
         break;
 
-        case 3 :
+        case 3:
         deleteItem();
         break;
 
-        case 4 :
+        case 4:
         printf("Bye bye, Boss!\n");
         break;
     }
 }
 
+// display all items
 void displayItems()
 {
-    system("clear");
+	system("cls");
+	
     FILE *items_file = fopen("store items.txt", "r");
 
     // check if item file exists
@@ -176,7 +187,7 @@ void displayItems()
 
     // get items information
     int index = 0;
-    while(fscanf(items_file, "%[^#] # %d # %d\n", item[index].name, &item[index].price, &item[index].stock) != EOF) 
+    while(fscanf(items_file, "%[^#]#%d#%d\n", item[index].name, &item[index].price, &item[index].stock) != EOF) 
     {
         index++;
     }
@@ -184,7 +195,7 @@ void displayItems()
     // print items information
     for(int i = 0; i < index; i++)
     {
-        printItem(item[i]);
+        printItem(&item[i]);
     }
 
     fclose(items_file);
@@ -195,22 +206,25 @@ void displayItems()
     ownerMenu();
 }
 
+// add an item to database
 void addItem()
 {
 	FILE *items_file = fopen("store items.txt", "a");
 	
 	items item;
-	inputItem(item);
+	inputItem(&item);
 
     // print item information into database
-	fprintf(items_file, "%s # %d # %d\n", item.name, item.price, item.stock);
+	fprintf(items_file, "%s#%d#%d\n", item.name, item.price, item.stock);
 
 	// print added item's properties
 	printf("\nItem added succesfully!\n");
-	printItem(item);
+	printItem(&item);
 	
 	fclose(items_file);
 
+	sortItems();
+	
 	getchar();
     puts("Click enter to go back to menu!");
     getchar();
@@ -218,24 +232,25 @@ void addItem()
 }
 
 // input information to an item struct
-void inputItem(items item){
-    system("clear");
+void inputItem(items *item)
+{
+    system("cls");
 	getchar();
 	printf("Enter item name : ");
-	scanf("%[^\n]", item.name);
-    sentenceCase(item.name);
+	scanf("%[^\n]", item->name);
+    sentenceCase(item->name);
 	printf("Enter item price : Rp ");
-	scanf("%d", &item.price);
+	scanf("%d", &item->price);
 	printf("Enter item stock amount : ");
-	scanf("%d", &item.stock);
+	scanf("%d", &item->stock);
 }
 
 // prints an item's properties
-void printItem(items item)
+void printItem(items *item)
 {
-    printf("Name  : %s\n", item.name);
-    printf("Price : Rp %d\n", item.price);
-    printf("Stock : %d\n\n", item.stock);
+    printf("Name  : %s\n", item->name);
+    printf("Price : Rp %d\n", item->price);
+    printf("Stock : %d\n\n", item->stock);
 }
 
 // capitalize a string using sentence case. ex : "Like this string"
@@ -246,9 +261,161 @@ void sentenceCase(char s[]){
     }
 }
 
+// deletes an item from the database
 void deleteItem(){
-    puts("UNDER CONSTRUCTION");
-    // use sorted file
-    // input the file
-    // search the file
+    char temp_name[100];
+	printf("Enter name of item you want to delete : ");
+	getchar();
+    scanf("%[^\n]", temp_name);
+	sentenceCase(temp_name);
+    
+    FILE *items_file = fopen("store items.txt", "r");
+
+    // check if item file exists
+    if(!items_file)
+    {
+        puts("WHERE THE HECK IS THE FILE");
+        return;
+    }
+    
+    items item[MAX_AMOUNT];
+
+    // get items information
+    int index = 0;
+    while(fscanf(items_file, "%[^#]#%d#%d\n", item[index].name, &item[index].price, &item[index].stock) != EOF) 
+    {
+        index++;
+    }
+
+    fclose(items_file);
+    
+    
+    items_file = fopen("store items.txt", "w");
+
+    // print items' information into database
+	for (int i = 0; i < index; i++)
+	{
+		if(strcmp(item[i].name, temp_name) == 0)continue;
+		fprintf(items_file, "%s#%d#%d\n", item[i].name, item[i].price, item[i].stock);
+	}
+
+	printf("\nItems written into database!\n");
+	
+	fclose(items_file);
+	
+	ownerMenu();
+}
+
+// sort items in file
+void sortItems()
+{
+    FILE *items_file = fopen("store items.txt", "r");
+
+    // check if item file exists
+    if(!items_file)
+    {
+        puts("WHERE THE HECK IS THE FILE");
+        return;
+    }
+    
+    items item[MAX_AMOUNT];
+
+    // get items information
+    int index = 0;
+    while(fscanf(items_file, "%[^#]#%d#%d\n", item[index].name, &item[index].price, &item[index].stock) != EOF) 
+    {
+        index++;
+    }
+
+    fclose(items_file);
+
+    mergeSort(item, 0, index-1);
+    
+    writeItemsToDatabase(item, index);
+}
+
+void writeItemsToDatabase(items *source, int number_of_items)
+{
+
+	FILE *items_file = fopen("store items.txt", "w");
+
+    // print items' information into database
+	for (int i = 0; i < number_of_items; i++)
+	{
+		fprintf(items_file, "%s#%d#%d\n", source[i].name, source[i].price, source[i].stock);
+	}
+
+	printf("\nItems written into database!\n");
+	
+	fclose(items_file);
+}
+
+// merge sort function for an array of items
+void mergeSort(items *item, int l, int r)
+{
+    if(l >= r)
+    {
+        return;
+    }
+
+    int m = (l+r)/2;
+
+    mergeSort(item, l, m);
+    mergeSort(item, m+1, r);
+
+    merge(item, l, r, m);
+
+}
+
+// merge function for mergeSort()
+void merge(items *item, int l, int r, int m)
+{
+    int l_size = m - l + 1;
+    int r_size = r - m;
+    items l_item[l_size];
+    items r_item[r_size];
+
+    for(int i = 0; i < l_size; i++)
+    {
+        copyItem(&l_item[i], &item[l+i]);
+    }
+    for(int i = 0; i < r_size; i++)
+    {
+        copyItem(&r_item[i], &item[m+1+i]);
+    }
+    
+    int i = 0, j = 0;
+    while(i < l_size && j < r_size)
+    {
+        if(strcmp(l_item[i].name, r_item[j].name) <= 0)
+        {
+            copyItem(&item[l+i+j], &l_item[i]);
+            i++;
+        }
+        else
+        {
+            copyItem(&item[l+i+j], &r_item[j]);
+            j++;
+        }
+    }
+
+    while(i < l_size)
+    {
+        copyItem(&item[l+i+j], &l_item[i]);
+        i++;
+    }
+
+    while(j < r_size)
+    {
+        copyItem(&item[l+i+j], &r_item[j]);
+        j++;
+    }
+}
+
+// copies item's information from source to destination
+void copyItem(items *destination, items *source)
+{
+    strcpy(destination->name, source->name);
+    destination->price = source->price;
+    destination->stock = source->stock;
 }
