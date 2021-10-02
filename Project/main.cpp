@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -24,6 +25,8 @@ void ownerMenu();
 void displayItems();
 void addItem();
 void printItem(items item); // print an item's properties
+void inputItem(items item); // get an item's properties from user
+void deleteItem();
 
 // utility
 void sentenceCase(char s[]);
@@ -37,6 +40,7 @@ int main(){
 void mainMenu()
 {
     int choice = -1;
+    system("clear");
     puts("Welcome to The Fisherman Market App!");
     puts("What Can We Do To Help You?");
     puts("1. Staff");
@@ -51,26 +55,29 @@ void mainMenu()
         scanf("%d", &choice);
     }while(!(1 <= choice && choice <= 4));
     
-    if(choice == 1)
+    switch(choice)
     {
+        case 1 :
         staffLogin();
-    }
-    else if(choice == 2)
-    {
+        break;
+
+        case 2 :
         customerMenu();
-    }
-    else if(choice == 3)
-    {
+        break;
+
+        case 3 :
         ownerMenu();
-    }
-    else if(choice == 4)
-    {
-        printf("Thanks For Using The Program!\n");
+        break;
+
+        case 4 :
+        puts("Thanks For Using The Program!\n");
+        break;
     }
 }
 
 // staff login screen
 void staffLogin(){
+    system("clear");
     char data_id[4][20] = {"2540119280", "2501983982", "123456789", "1234567890"};
     char id[20];
     bool is_valid = false;
@@ -88,12 +95,15 @@ void staffLogin(){
 
     if(is_valid == true)
     {
-        printf("Welcome %s\n", id);
+        printf("Welcome %s!\n", id);
         staffMenu();
     }
     else
     {
         printf("Invalid ID\n");
+        getchar();
+        puts("Click enter to go back to menu!");
+        getchar();
         mainMenu();
     }
 }
@@ -101,46 +111,58 @@ void staffLogin(){
 // display staff menu
 void staffMenu()
 {
+    system("clear");
     puts("UNDER CONSTRUCTION");
 } 
 
 // display customer menu
 void customerMenu()
 {
+    system("clear");
     puts("UNDER CONSTRUCTION");
 }
 
 // display owner menu
 void ownerMenu()
 {
+    system("clear");
     int choice;
     puts("Welcome Owner!");
     puts("What do you want to do, Boss?");
     puts("1. Display items");
     puts("2. Add item");
-    puts("3. Exit");
+    puts("3. Delete item");
+    puts("4. Exit");
+    printf(">> ");
 
     do
     {
         scanf("%d", &choice);
-    }while(!(1 <= choice && choice <= 3));
+    }while(!(1 <= choice && choice <= 4));
     
-    if(choice == 1)
+    switch(choice)
     {
+        case 1 :
         displayItems();
-    }
-    else if(choice == 2)
-    {
+        break;
+
+        case 2 :
         addItem();
-    }
-    else if(choice == 3)
-    {
+        break;
+
+        case 3 :
+        deleteItem();
+        break;
+
+        case 4 :
         printf("Bye bye, Boss!\n");
+        break;
     }
 }
 
 void displayItems()
 {
+    system("clear");
     FILE *items_file = fopen("store items.txt", "r");
 
     // check if item file exists
@@ -167,7 +189,7 @@ void displayItems()
 
     fclose(items_file);
 
-	fflush(stdin);
+	getchar();
     puts("Click enter to go back to menu!");
     getchar();
     ownerMenu();
@@ -178,17 +200,8 @@ void addItem()
 	FILE *items_file = fopen("store items.txt", "a");
 	
 	items item;
-	
-    // get item information from user
-	fflush(stdin);
-	printf("Enter item name : ");
-	scanf("%[^\n]", item.name);
-    sentenceCase(item.name);
-	printf("Enter item price : Rp ");
-	scanf("%d", &item.price);
-	printf("Enter item stock amount : ");
-	scanf("%d", &item.stock);
-	
+	inputItem(item);
+
     // print item information into database
 	fprintf(items_file, "%s # %d # %d\n", item.name, item.price, item.stock);
 
@@ -198,10 +211,23 @@ void addItem()
 	
 	fclose(items_file);
 
-	fflush(stdin);
+	getchar();
     puts("Click enter to go back to menu!");
     getchar();
     ownerMenu();
+}
+
+// input information to an item struct
+void inputItem(items item){
+    system("clear");
+	getchar();
+	printf("Enter item name : ");
+	scanf("%[^\n]", item.name);
+    sentenceCase(item.name);
+	printf("Enter item price : Rp ");
+	scanf("%d", &item.price);
+	printf("Enter item stock amount : ");
+	scanf("%d", &item.stock);
 }
 
 // prints an item's properties
@@ -218,4 +244,11 @@ void sentenceCase(char s[]){
     for(int i = 1; s[i] != '\0'; i++){
         s[i] = tolower(s[i]);
     }
+}
+
+void deleteItem(){
+    puts("UNDER CONSTRUCTION");
+    // use sorted file
+    // input the file
+    // search the file
 }
