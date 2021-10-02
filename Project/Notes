@@ -1,0 +1,53 @@
+
+/*-----------------------------
+USE CAMEL camel
+-----------------------------*/
+Function :
+// for menu
+displayMenu()  
+
+//for Staff
+staffMenu();
+searchProduct;
+inputProduct;
+
+
+//for Cust
+customerMenu();
+searchProduct;
+
+//for ShopOwner
+ownerMenu();
+searchProduct;
+searchProfit;
+
+// for searching item
+searchItem()
+
+// for displaying all items from databse
+displayItems
+
+// for printing 1 item (the struct)
+printItem
+
+//for buy
+
+/*---------------------------
+Use under_scores)
+----------------------------*/
+Variables : 
+// for items
+items_file
+MAX_AMOUNT = 100; // max amount of items
+
+Structs :
+item 
+- name 
+- price 
+- stock
+
+
+/*---------------------------
+FILE FORMAT
+----------------------------*/
+Name - price - stock
